@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./assets/index-DYNcF2Sv.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+    <title>Todos</title>
+  </head>
+
+  <body>
+    <section>
+      <div id="todo_area">
+        <div id="todo_header">
+          <input
+            type="search"
+            placeholder="search"
+            name="todo"
+            data-todo-input
+          />
+          <div class="w-max">
+            <span
+              id="search_icon"
+              data-todo-create
+              class="material-symbols-outlined"
+            >
+              add_box
+            </span>
+          </div>
+        </div>
+
+        <ul id="todo_list" data-todo-list>
+          <!-- <li id="todo">
+            <div id="todo_content">
+              <span id="date"> 5:15 </span><br />
+              <span id="text"> Today! i will make a website Today! </span>
+            </div>
+            <div id="todo_action">
+              <span class="material-symbols-outlined" data-hidden-toggler>
+                more_vert
+              </span>
+              <div id="hidden_option" data-hidden-menu>
+                <div id="save">
+                  <span class="material-symbols-outlined"> done </span>
+                </div>
+                <div id="delete">
+                  <span class="material-symbols-outlined"> delete </span>
+                </div>
+                <div id="update">
+                  <span class="material-symbols-outlined"> edit </span>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li id="todo">
+            <div id="todo_content">
+              <span id="date"> 5:15 </span><br />
+              <span id="text"> Today! i will make a website Today! </span>
+            </div>
+            <div id="todo_action">
+              <span class="material-symbols-outlined" data-hidden-toggler>
+                more_vert
+              </span>
+              <div id="hidden_option">
+                <div id="save">
+                  <span class="material-symbols-outlined"> done </span>
+                </div>
+                <div id="delete">
+                  <span class="material-symbols-outlined"> delete </span>
+                </div>
+                <div id="update">
+                  <span class="material-symbols-outlined"> edit </span>
+                </div>
+              </div>
+            </div>
+          </li> -->
+        </ul>
+
+        <div style="display: none; text-align: center; padding: 10px 0;" data-todo-notfound>
+          <span style="color: rgb(112, 112, 112);">Todo Not Available</span>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // @class toggle
+      const classToggler = (element, cls) => {
+        element.classList.toggle(cls);
+      };
+      //@input toggle
+      const searchToggle = () => {
+        const searchInput = document.querySelector("[data-todo-input]");
+        if (searchInput.value == "") {
+          classToggler(searchInput, "active");
+        } else {
+          return;
+        }
+      };
+      //@menu toggle
+      const menuTogle = (e) => {
+        classToggler(e.target.nextElementSibling, "active");
+      };
+
+      const showTodo = (todoPayload) => {
+        // dom find
+        const todoList = document.querySelector("[data-todo-list]");
+        const todoNotFoundMessage = document.querySelector(
+          "[data-todo-notfound]"
+        );
+        if (todoPayload.length > 0) {
+          console.log(todoPayload);
+          todoNotFoundMessage.style.display = "none";
+          todoList.style.display = "block";
+          todoPayload.forEach((tp) => {
+            todoList.innerHTML += `
+          <li id="todo">
+            <div id="todo_content">
+              <span id="date"> ${tp.created} </span><br />
+              <span id="text"> ${tp.todo}</span>
+            </div>
+            <div id="todo_action">
+              <span class="material-symbols-outlined" data-hidden-toggler>
+                more_vert
+              </span>
+              <div id="hidden_option" data-hidden-menu>
+                <div id="save">
+                  <span class="material-symbols-outlined"> done </span>
+                </div>
+                <div id="delete">
+                  <span class="material-symbols-outlined"> delete </span>
+                </div>
+                <div id="update">
+                  <span class="material-symbols-outlined"> edit </span>
+                </div>
+              </div>
+            </div>
+          </li>
+        `;
+          });
+
+          const menuTogglers = document.querySelectorAll(
+            "[data-hidden-toggler]"
+          );
+          menuTogglers.forEach((menuTogglers) => {
+            menuTogglers.addEventListener("click", (e) => menuTogle(e));
+          });
+        } 
+        else {
+          todoNotFoundMessage.style.display = "block";
+          todoList.style.display = "none";
+        }
+      };
+
+      const getTodo = async (url, authKey) => {
+        const oldTodo = await fetch(`${url}/find?authKey=${authKey}`);
+        const response = await oldTodo.json();
+        if (response.success) {
+          return response.payload;
+        } else {
+          return [];
+        }
+      };
+
+      const postTodo = async (url, payload) => {
+        try {
+          const todoFetch = await fetch(url + "/create", {
+            method: "POST",
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+            },
+            body: JSON.stringify({
+              todo: payload.todoString,
+              authKey: payload.key,
+            }),
+          });
+          const response = await todoFetch.json();
+          if (response.success) {
+            return response.payload;
+          } else {
+            return {};
+          }
+        } catch (error) {
+          console.log(error.message);
+        }
+      };
+
+      function getCookie(string) {
+        string = typeof string === "string" ? string : false;
+        if (string) {
+          const silceIndex = string.indexOf("=");
+          string = string.slice(silceIndex + 1);
+          return string;
+        } else {
+          return "";
+        }
+      }
+
+      // create new todo and beside in server
+      const createTodo = (url, cookie) => {
+        const createBtn = document.querySelector("[data-todo-create]");
+        const todoInput = document.querySelector("[data-todo-input]");
+        createBtn.onclick = async () => {
+          if (todoInput.value !== "") {
+            let todoString = todoInput.value.trim();
+            const todoPayload = await postTodo(url, {
+              todoString,
+              key: cookie,
+            });
+            showTodo([todoPayload]);
+          } else {
+            return;
+          }
+        };
+      };
+      createTodo(window.location.href, getCookie(document.cookie));
+
+      // todo show form data base
+      window.addEventListener("load", async () => {
+        const todoPayload = await getTodo(
+          window.location.href,
+          getCookie(document.cookie)
+        );
+        await showTodo(todoPayload);
+      });
+
+      //@input toggle
+      const search = document.querySelector("[data-todo-create]");
+      search.addEventListener("click", searchToggle);
+    </script>
+  </body>
+</html>
