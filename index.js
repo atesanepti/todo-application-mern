@@ -4,14 +4,15 @@ const { connect } = require("./models/model.utiles");
 
 
 
-const confing = {
-    PORT : process.env.PORT || 8080
-}
+// const confing = {
+//     PORT : process.env.PORT || 8080
+// }
+const PORT = process.env.PORT
 
 
-app.listen(confing.PORT,async (error)=>{
+app.listen(PORT,async (error)=>{
     if(!error){
-        console.log(`Server is running at ${confing.PORT}`);
+        console.log(`Server is running at ${PORT}`);
         await connect();
     }
     else{

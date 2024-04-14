@@ -20,7 +20,7 @@ app.set("view engine", "pug");
 app.use(auth);
 
 // @Use root router
-app.get("/", rootRoute);
+app.use("/", rootRoute);
 
 // @use static middleware
 app.use(express.static(__dirname + "/views"));

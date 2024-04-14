@@ -2,7 +2,10 @@
 const express = require("express");
 const signinRoute = express.Router();
 //signin.controller
-const { signinPage, signin } = require("../controllers/signin.controller");
+const {
+  signinPage,
+  signin,
+} = require("../controllers/signin.controller");
 
 
 

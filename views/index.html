@@ -9,7 +9,7 @@
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
     />
     <title>Document</title>
-    <link rel="stylesheet" href="./assets/index-DYNcF2Sv.css">
+    <link rel="stylesheet" href="./assets/index-DYNcF2Sv.css" />
   </head>
   <body>
     <header>
@@ -20,10 +20,10 @@
             alt="profile"
           />
         </figure>
-        <span id="user_name">San Bin Hoque</span>
+        <span id="user_name" data-username></span>
       </div>
       <div id="herader_action">
-        <a href="#">LogOut?</a>
+        <a href="#" onclick="logout()">LogOut?</a>
       </div>
     </header>
 
@@ -50,5 +50,54 @@
         </figure>
       </div>
     </section>
+
+    <script>
+      const userNameHolder = document.querySelector("[data-username]");
+
+      function getCookie(string) {
+        string = typeof string === "string" ? string : false;
+        if (string) {
+          const silceIndex = string.indexOf("=");
+          string = string.slice(silceIndex + 1);
+          return string;
+        } else {
+          return "";
+        }
+      }
+
+      const getUserInfo = async (url, authKey) => {
+        const response = await fetch(`${url}info?authKey=${authKey}`);
+        if (response.ok) {
+          const userInfo = await response.json();
+          return userInfo.payload;
+        } else {
+          return {};
+        }
+      };
+
+      const setUserName = async () => {
+        const authKey = getCookie(document.cookie);
+        const userInfo = await getUserInfo(location.href, authKey);
+        userNameHolder.innerHTML = `${userInfo.name}`;
+      };
+      setUserName();
+
+      const deleteAuthKey = async (url, authKey) => {
+        const auth = await fetch(url + `cookie-delete?authKey=${authKey}`, {
+          method: "DELETE",
+        });
+        if (auth.ok) {
+          return true;
+        } else {
+          return false;
+        }
+      };
+
+      const logout = async () => {
+        const authKey = getCookie(document.cookie);
+        await deleteAuthKey(location.href, authKey);
+        
+      };
+    </script>
   </body>
 </html>

@@ -30,7 +30,7 @@ const createTodo = async (req, res, next) => {
 
       res.status(201).json({
         success: true,
-        payload: { todo: todoData.todo, created: todoData.created },
+        payload: { todo: todoData.todo, created: todoData.created,_id : todoData["_id"] },
         message: "your data successfuly added",
       });
     } else {
@@ -50,12 +50,12 @@ const findTodo = async (req, res, next) => {
     if (authKey) {
       const todoPayload = await Todo.find(
         { authKey },
-        { _id: 0, authKey: 0, __v: 0 }
+        { authKey: 0, __v: 0 }
       );
       if (todoPayload.length > 0) {
         res.status(200).json({ success: true, payload: todoPayload });
       } else {
-        res.status(404).json({
+        res.status(200).json({
           success: false,
           payload: [],
           message: "Todo not found",
@@ -72,8 +72,30 @@ const findTodo = async (req, res, next) => {
   }
 };
 
+const deleteTodo = async (req,res,next)=>{
+  try {
+    const {id} = req.query;
+    if(id){
+      const todo = await Todo.deleteOne({_id : id});
+      res.status(200).json({
+        success : true,
+        message : "Todo was delete"
+      })
+    }
+    else{
+      res.status(403).json({
+        success : false,
+        message : "you have problem in your request!"
+      })
+    }
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   getTodoPage,
   createTodo,
   findTodo,
+  deleteTodo,
 };
